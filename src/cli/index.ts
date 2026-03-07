@@ -6,6 +6,7 @@ import betterport from '../index.js'
 import { detectDevCommand } from '../core/runner.js'
 import { removeAllHosts, listHosts, flushDNS } from '../core/hosts.js'
 import { setupMkcert } from '../core/cert.js'
+import { detectBackend } from '../core/detect.js'
 
 const program = new Command()
 
@@ -52,7 +53,9 @@ program
         console.log(`  ${chalk.dim('HTTPS:')}   ${chalk.green('trusted (mkcert)')}`)
       }
       if (opts.clean) {
-        console.log(`  ${chalk.dim('Mode:')}    ${chalk.green('clean (reverse proxy)')}`)
+        const backend = detectBackend()
+        const via = backend === 'herd' ? 'Herd' : backend === 'valet' ? 'Valet' : 'reverse proxy'
+        console.log(`  ${chalk.dim('Mode:')}    ${chalk.green(`clean (${via})`)}`)
       }
       console.log()
       console.log(chalk.dim('  Press Ctrl+C to stop'))

@@ -4,6 +4,7 @@ import { detectDomain, parseDomain } from '../core/domain.js'
 import { addHost, removeHost, flushDNS } from '../core/hosts.js'
 import { startProxy } from '../core/proxy.js'
 import { generateCert, isMkcertInstalled, setupMkcert } from '../core/cert.js'
+import { hasValetOrHerd } from '../core/detect.js'
 import type { VitePluginOptions } from '../types.js'
 
 export default function betterportPlugin(options: VitePluginOptions = {}): Plugin {
@@ -16,13 +17,16 @@ export default function betterportPlugin(options: VitePluginOptions = {}): Plugi
   let domain: string
   let stopProxy: (() => Promise<void>) | undefined
   let cleanupDone = false
+  const valetDetected = hasValetOrHerd()
 
   const cleanup = async () => {
     if (cleanupDone) return
     cleanupDone = true
     if (stopProxy) await stopProxy()
-    await removeHost(domain).catch(() => {})
-    flushDNS()
+    if (!valetDetected) {
+      await removeHost(domain).catch(() => {})
+      flushDNS()
+    }
   }
 
   return {
@@ -36,9 +40,11 @@ export default function betterportPlugin(options: VitePluginOptions = {}): Plugi
 
       const port = await findFreePort()
 
-      // Register in hosts
-      await addHost(domain)
-      flushDNS()
+      // Register in hosts (skip if Valet handles .test via dnsmasq)
+      if (!valetDetected) {
+        await addHost(domain)
+        flushDNS()
+      }
 
       // Handle HTTPS
       let cert: string | undefined

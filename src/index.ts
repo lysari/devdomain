@@ -1,6 +1,7 @@
 import { findFreePort } from './core/port-finder.js'
 import { detectDomain, parseDomain } from './core/domain.js'
 import { addHost, removeHost, flushDNS } from './core/hosts.js'
+import { hasValetOrHerd } from './core/detect.js'
 import { startProxy } from './core/proxy.js'
 import { generateCert, isMkcertInstalled, setupMkcert } from './core/cert.js'
 import { spawnDevServer } from './core/runner.js'
@@ -28,9 +29,12 @@ export default async function betterport(options: BetterPortOptions = {}): Promi
   const [min, max] = portRange || [4000, 8999]
   const port = await findFreePort(min, max)
 
-  // Register domain in hosts file
-  await addHost(domain)
-  flushDNS()
+  // Register domain in hosts file (skip if Valet handles .test via dnsmasq)
+  const valetDetected = hasValetOrHerd()
+  if (!valetDetected) {
+    await addHost(domain)
+    flushDNS()
+  }
 
   // Handle HTTPS
   let cert: string | undefined
@@ -78,8 +82,10 @@ export default async function betterport(options: BetterPortOptions = {}): Promi
     if (stopProxy) {
       await stopProxy()
     }
-    await removeHost(domain)
-    flushDNS()
+    if (!valetDetected) {
+      await removeHost(domain)
+      flushDNS()
+    }
   }
 
   return { domain, port, url, internalUrl, stop }
