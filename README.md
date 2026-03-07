@@ -9,9 +9,9 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=800&size=40&pause=1000000&color=58A6FF&center=true&vCenter=true&width=500&height=60&lines=betterport" />
-    <source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=800&size=40&pause=1000000&color=0969DA&center=true&vCenter=true&width=500&height=60&lines=betterport" />
-    <img alt="betterport" src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=800&size=40&pause=1000000&color=0969DA&center=true&vCenter=true&width=500&height=60&lines=betterport" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=800&size=40&pause=1000000&color=58A6FF&center=true&vCenter=true&width=500&height=60&lines=betterports" />
+    <source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=800&size=40&pause=1000000&color=0969DA&center=true&vCenter=true&width=500&height=60&lines=betterports" />
+    <img alt="betterports" src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=800&size=40&pause=1000000&color=0969DA&center=true&vCenter=true&width=500&height=60&lines=betterports" />
   </picture>
 </p>
 
@@ -27,7 +27,7 @@
 <br/>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/betterport"><img src="https://img.shields.io/npm/v/betterport?style=flat-square&logo=npm&logoColor=white&label=npm&color=CB3837" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/betterports"><img src="https://img.shields.io/npm/v/betterports?style=flat-square&logo=npm&logoColor=white&label=npm&color=CB3837" alt="npm version" /></a>
   &nbsp;
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="license" />
   &nbsp;
@@ -49,9 +49,9 @@
 <div align="center">
 
 ```
-  $ npx betterports vite
+  $ npx betterportss vite
 
-  betterport
+  betterports
 
   Domain:   my-project.test
   Port:     7421
@@ -92,13 +92,13 @@
 
 ---
 
-## Why betterport?
+## Why betterports?
 
 | | Problem | Solution |
 |---|---|---|
 | **Memorable** | `localhost:5173` is forgettable | `dashboard.test` is not |
 | **Realistic** | Cookies, CORS, OAuth break on localhost | `.test` domains behave like production |
-| **No conflicts** | Port 3000 is already in use... | betterport picks a free port automatically |
+| **No conflicts** | Port 3000 is already in use... | betterports picks a free port automatically |
 | **Team-friendly** | "What port are you on?" | Same domain for everyone |
 | **Clean URLs** | `http://localhost:8080/api/v2` | `http://api.test/v2` |
 | **Trusted HTTPS** | Self-signed cert warnings | One flag for a green lock via mkcert |
@@ -106,7 +106,7 @@
 ## Install
 
 ```bash
-npm install -D betterports
+npm install -D betterportss
 ```
 
 ## Quick Start
@@ -115,18 +115,18 @@ npm install -D betterports
 
 ```bash
 # Auto-detects your dev server
-npx betterports dev
+npx betterportss dev
 
 # Or specify it explicitly
-npx betterports vite
-npx betterports next dev
-npx betterports nuxt dev
+npx betterportss vite
+npx betterportss next dev
+npx betterportss nuxt dev
 
 # Custom domain
-npx betterports dev --domain dashboard.test
+npx betterportss dev --domain dashboard.test
 
 # Full experience: clean URL + trusted HTTPS
-npx betterports dev --clean --https
+npx betterportss dev --clean --https
 ```
 
 ### Vite Plugin (zero config)
@@ -134,23 +134,23 @@ npx betterports dev --clean --https
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite'
-import betterport from 'betterports/vite'
+import betterports from 'betterportss/vite'
 
 export default defineConfig({
   plugins: [
-    betterport()
+    betterports()
   ]
 })
 ```
 
-Then just run `npm run dev` as usual. betterport handles everything.
+Then just run `npm run dev` as usual. betterports handles everything.
 
 ### Programmatic API
 
 ```ts
-import betterport from 'betterports'
+import betterports from 'betterportss'
 
-const server = await betterport({
+const server = await betterports({
   command: 'vite',
   https: true,
   clean: true,
@@ -172,7 +172,7 @@ await server.stop()
 ### Simple Mode <sup>default</sup>
 
 ```bash
-npx betterports dev
+npx betterportss dev
 ```
 
 ```
@@ -188,7 +188,7 @@ No extra privileges beyond the hosts file edit.
 ### Clean Mode
 
 ```bash
-npx betterports dev --clean --https
+npx betterportss dev --clean --https
 ```
 
 ```
@@ -204,7 +204,7 @@ Trusted green lock with `--https`.
 
 ## CLI Reference
 
-### `betterport dev [command...]`
+### `betterports dev [command...]`
 
 Start your dev server with a `.test` domain.
 
@@ -216,22 +216,22 @@ Start your dev server with a `.test` domain.
 | `--port-range <range>` | Custom range (e.g. `5000-9000`, default `4000-8999`) |
 | `--open` | Auto-open browser |
 
-### `betterport setup`
+### `betterports setup`
 
 Install mkcert's local CA. Run this once before using `--https`.
 
-### `betterport list`
+### `betterports list`
 
-Show all active betterport domains in your hosts file.
+Show all active betterports domains in your hosts file.
 
-### `betterport cleanup`
+### `betterports cleanup`
 
-Remove all betterport entries from your hosts file.
+Remove all betterports entries from your hosts file.
 
 ## Vite Plugin Options
 
 ```ts
-betterport({
+betterports({
   domain: 'my-app.test',  // auto-detected from package.json if omitted
   https: true,             // trusted HTTPS with mkcert
   clean: true,             // reverse proxy on port 80/443
@@ -242,7 +242,7 @@ betterport({
 ## Programmatic API
 
 ```ts
-const result = await betterport(options)
+const result = await betterports(options)
 ```
 
 **Options:**
@@ -274,13 +274,13 @@ const result = await betterport(options)
 
 1. **Detects your project name** from `package.json` or the folder name
 2. **Finds a free port** randomly in the 4000-8999 range
-3. **Adds a hosts entry** (`127.0.0.1 my-project.test # betterport`) - prompts for sudo once
+3. **Adds a hosts entry** (`127.0.0.1 my-project.test # betterports`) - prompts for sudo once
 4. **(Optional)** Generates a trusted TLS certificate with mkcert
 5. **(Optional)** Starts a reverse proxy on port 80/443 for clean URLs
 6. **Spawns your dev server** on the chosen port
 7. **Cleans up** the hosts entry on exit
 
-All hosts entries are tagged with `# betterport` so they're easy to identify and clean up.
+All hosts entries are tagged with `# betterports` so they're easy to identify and clean up.
 
 ## Requirements
 
@@ -290,14 +290,14 @@ All hosts entries are tagged with `# betterport` so they're easy to identify and
 
 ## `.test` Domain
 
-betterport uses `.test` domains as defined in [RFC 6761](https://datatracker.ietf.org/doc/html/rfc6761). These are officially reserved for local development and testing - they will never conflict with real websites.
+betterports uses `.test` domains as defined in [RFC 6761](https://datatracker.ietf.org/doc/html/rfc6761). These are officially reserved for local development and testing - they will never conflict with real websites.
 
 ---
 
 <br/>
 
 <p align="center">
-  <strong>betterport</strong> &mdash; because your dev server deserves a real name.
+  <strong>betterports</strong> &mdash; because your dev server deserves a real name.
 </p>
 
 <p align="center">
