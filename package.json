@@ -1,12 +1,12 @@
 {
-  "name": "betterport",
+  "name": "betterports",
   "version": "1.0.0",
   "description": "Give your dev server a clean .test domain with zero config",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "betterport": "./dist/cli/index.js"
+    "betterports": "./dist/cli/index.js"
   },
   "exports": {
     ".": {

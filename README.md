@@ -49,7 +49,7 @@
 <div align="center">
 
 ```
-  $ npx betterport vite
+  $ npx betterports vite
 
   betterport
 
@@ -106,7 +106,7 @@
 ## Install
 
 ```bash
-npm install -D betterport
+npm install -D betterports
 ```
 
 ## Quick Start
@@ -115,18 +115,18 @@ npm install -D betterport
 
 ```bash
 # Auto-detects your dev server
-npx betterport dev
+npx betterports dev
 
 # Or specify it explicitly
-npx betterport vite
-npx betterport next dev
-npx betterport nuxt dev
+npx betterports vite
+npx betterports next dev
+npx betterports nuxt dev
 
 # Custom domain
-npx betterport dev --domain dashboard.test
+npx betterports dev --domain dashboard.test
 
 # Full experience: clean URL + trusted HTTPS
-npx betterport dev --clean --https
+npx betterports dev --clean --https
 ```
 
 ### Vite Plugin (zero config)
@@ -134,7 +134,7 @@ npx betterport dev --clean --https
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite'
-import betterport from 'betterport/vite'
+import betterport from 'betterports/vite'
 
 export default defineConfig({
   plugins: [
@@ -148,7 +148,7 @@ Then just run `npm run dev` as usual. betterport handles everything.
 ### Programmatic API
 
 ```ts
-import betterport from 'betterport'
+import betterport from 'betterports'
 
 const server = await betterport({
   command: 'vite',
@@ -172,7 +172,7 @@ await server.stop()
 ### Simple Mode <sup>default</sup>
 
 ```bash
-npx betterport dev
+npx betterports dev
 ```
 
 ```
@@ -188,7 +188,7 @@ No extra privileges beyond the hosts file edit.
 ### Clean Mode
 
 ```bash
-npx betterport dev --clean --https
+npx betterports dev --clean --https
 ```
 
 ```

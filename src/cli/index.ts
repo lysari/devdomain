@@ -10,7 +10,7 @@ import { setupMkcert } from '../core/cert.js'
 const program = new Command()
 
 program
-  .name('betterport')
+  .name('betterports')
   .description('Give your dev server a clean .test domain')
   .version('1.0.0')
 
