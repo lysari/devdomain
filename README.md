@@ -46,22 +46,18 @@
 
 <br/>
 
-<div align="center">
-
 ```bash
 $ npx devdomain vite
 
-  devdomain v1.0.2
+devdomain v1.0.3
 
-  Domain:    my-project.test
-  Port:      7421
-  URL:       http://my-project.test:7421
-  Internal:  http://127.0.0.1:7421
+Domain:    my-project.test
+Port:      7421
+URL:       http://my-project.test:7421
+Internal:  http://127.0.0.1:7421
 
-  Press Ctrl+C to stop
+Press Ctrl+C to stop
 ```
-
-</div>
 
 <br/>
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createRequire } from 'node:module'
 import { Command } from 'commander'
 import chalk from 'chalk'
 import devdomain from '../index.js'
@@ -8,12 +9,15 @@ import { removeAllHosts, listHosts, flushDNS } from '../core/hosts.js'
 import { setupMkcert } from '../core/cert.js'
 import { detectBackend } from '../core/detect.js'
 
+const require = createRequire(import.meta.url)
+const { version } = require('../../package.json')
+
 const program = new Command()
 
 program
   .name('devdomain')
   .description('Give your dev server a clean .test domain')
-  .version('1.0.0')
+  .version(version)
 
 program
   .command('dev', { isDefault: true })
@@ -43,7 +47,7 @@ program
       })
 
       console.log()
-      console.log(chalk.bold.green('  devdomain') + chalk.dim(` v1.0`))
+      console.log(chalk.bold.green('  devdomain') + chalk.dim(` v${version}`))
       console.log()
       console.log(`  ${chalk.dim('Domain:')}    ${chalk.cyan(result.domain)}`)
       console.log(`  ${chalk.dim('Port:')}      ${chalk.yellow(String(result.port))}`)
