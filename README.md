@@ -49,7 +49,7 @@
 ```bash
 $ npx devdomain vite
 
-devdomain v1.0.5
+devdomain v1.1.3
 
 Domain:    my-project.test
 Port:      7421
@@ -207,14 +207,31 @@ Start your dev server with a `.test` domain.
 | Flag | Description |
 |------|-------------|
 | `-d, --domain <name>` | Custom domain (e.g. `dashboard.test`) |
-| `--https` | Trusted HTTPS via mkcert |
-| `--clean` | Hide port with reverse proxy |
+| `--no-https` | Disable HTTPS (enabled by default) |
+| `--no-clean` | Show port in URL (clean mode by default) |
 | `--port-range <range>` | Custom range (e.g. `5000-9000`, default `4000-8999`) |
-| `--open` | Auto-open browser |
+| `--no-open` | Don't auto-open browser (opens by default) |
+
+### `devdomain status`
+
+Show all active processes, Herd/Valet proxies, and host entries.
+
+### `devdomain kill <port|pid|domain>`
+
+Kill a process and clean up its proxy. Accepts a port number, PID, or domain name.
+
+```bash
+devdomain kill 4609
+devdomain kill vite-test.test
+```
+
+### `devdomain kill-all`
+
+Kill all devdomain processes and remove all proxies/domains.
 
 ### `devdomain setup`
 
-Install mkcert's local CA. Run this once before using `--https`.
+Install mkcert's local CA. Run this once before using HTTPS.
 
 ### `devdomain list`
 
