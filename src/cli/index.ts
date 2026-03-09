@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 import { createRequire } from 'node:module'
+import { createInterface } from 'node:readline'
 import { Command } from 'commander'
 import chalk from 'chalk'
 import devdomain from '../index.js'
+import type { DomainConflict } from '../types.js'
 import { detectDevCommand } from '../core/runner.js'
 import { removeAllHosts, removeHost, listHosts, flushDNS } from '../core/hosts.js'
 import { setupMkcert } from '../core/cert.js'
@@ -12,6 +14,29 @@ import { findDevdomainProcesses, findProcessOnPort, killProcess, listBackendProx
 
 const require = createRequire(import.meta.url)
 const { version } = require('../../package.json')
+
+function promptConflict(conflict: DomainConflict): Promise<'replace' | 'cancel'> {
+  return new Promise((resolve) => {
+    const rl = createInterface({ input: process.stdin, output: process.stdout })
+    const port = conflict.proxy?.host.match(/:(\d+)$/)?.[1] || '?'
+    const pid = conflict.process ? ` (PID ${conflict.process.pid})` : ''
+
+    console.log()
+    console.log(chalk.yellow(`  ⚠ Domain ${chalk.bold(conflict.domain)} is already in use`))
+    console.log(chalk.dim(`    Proxying to port ${port}${pid}`))
+    console.log()
+
+    rl.question(`  ${chalk.bold('Replace')} the existing proxy? ${chalk.dim('(Y/n)')} `, (answer) => {
+      rl.close()
+      const normalized = answer.trim().toLowerCase()
+      if (normalized === '' || normalized === 'y' || normalized === 'yes') {
+        resolve('replace')
+      } else {
+        resolve('cancel')
+      }
+    })
+  })
+}
 
 const program = new Command()
 
@@ -41,6 +66,7 @@ program
         domain: opts.domain,
         https: opts.https,
         clean: opts.clean,
+        onConflict: promptConflict,
         command,
         args,
         portRange,
@@ -294,5 +320,12 @@ program
       process.exit(1)
     }
   })
+
+// Treat unknown commands as implicit "dev" — e.g. `devdomain next dev` → `devdomain dev next dev`
+const knownSubcommands = program.commands.map(c => c.name())
+const userArgs = process.argv.slice(2)
+if (userArgs.length > 0 && !knownSubcommands.includes(userArgs[0]) && !userArgs[0].startsWith('-')) {
+  process.argv.splice(2, 0, 'dev')
+}
 
 program.parse()

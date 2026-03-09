@@ -49,7 +49,7 @@
 ```bash
 $ npx devdomain vite
 
-devdomain v1.1.4
+devdomain v1.1.5
 
 Domain:    my-project.test
 Port:      7421
@@ -110,19 +110,21 @@ npm install -D devdomain
 ### CLI (works with any dev server)
 
 ```bash
-# Auto-detects your dev server
+# Auto-detects your dev server (runs `npm run dev`)
 npx devdomain dev
 
-# Or specify it explicitly
+# Or specify the framework directly
 npx devdomain vite
-npx devdomain next dev
-npx devdomain nuxt dev
+npx devdomain next
+npx devdomain nuxt
 
 # Custom domain
 npx devdomain dev --domain dashboard.test
 
-# Full experience: clean URL + trusted HTTPS
-npx devdomain dev --clean --https
+# Disable features (all enabled by default)
+npx devdomain dev --no-https        # disable HTTPS
+npx devdomain dev --no-clean        # keep port in URL
+npx devdomain dev --no-open         # don't open browser
 ```
 
 ### Vite Plugin (zero config)
@@ -202,15 +204,28 @@ Trusted green lock with `--https`.
 
 ### `devdomain dev [command...]`
 
-Start your dev server with a `.test` domain.
+Start your dev server with a `.test` domain. You can also pass the framework name directly — `devdomain next` is equivalent to `devdomain dev next`.
 
-| Flag | Description |
-|------|-------------|
-| `-d, --domain <name>` | Custom domain (e.g. `dashboard.test`) |
-| `--no-https` | Disable HTTPS (enabled by default) |
-| `--no-clean` | Show port in URL (clean mode by default) |
-| `--port-range <range>` | Custom range (e.g. `5000-9000`, default `4000-8999`) |
-| `--no-open` | Don't auto-open browser (opens by default) |
+```bash
+devdomain dev                # runs `npm run dev`
+devdomain vite               # runs `npx vite`
+devdomain next               # runs `npx next dev`
+devdomain dev next            # same as above
+```
+
+**Flags:**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-d, --domain <name>` | auto-detected | Custom domain (e.g. `dashboard.test`) |
+| `--no-https` | HTTPS **on** | Disable trusted HTTPS |
+| `--no-clean` | Clean **on** | Show port in URL (skip reverse proxy) |
+| `--no-open` | Open **on** | Don't auto-open browser |
+| `--port-range <range>` | `4000-8999` | Custom port range (e.g. `5000-9000`) |
+
+> **Note:** HTTPS, clean URLs, and auto-open are **enabled by default**. Use the `--no-*` flags to disable them.
+
+**Duplicate domain:** If the domain is already proxied by a previous session, devdomain will ask whether to replace or cancel.
 
 ### `devdomain status`
 
@@ -263,13 +278,14 @@ const result = await devdomain(options)
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `domain` | `string` | auto-detected | Domain name (e.g. `my-app.test`) |
-| `https` | `boolean` | `false` | Enable trusted HTTPS |
-| `clean` | `boolean` | `false` | Reverse proxy mode |
+| `https` | `boolean` | `true` | Trusted HTTPS via mkcert |
+| `clean` | `boolean` | `true` | Reverse proxy for clean URLs |
 | `command` | `string` | - | Dev server command to spawn |
 | `args` | `string[]` | `[]` | Arguments for the command |
 | `portRange` | `[number, number]` | `[4000, 8999]` | Port range |
-| `open` | `boolean` | `false` | Auto-open browser |
+| `open` | `boolean` | `true` | Auto-open browser |
 | `cwd` | `string` | `process.cwd()` | Working directory |
+| `onConflict` | `(conflict) => 'replace' \| 'cancel'` | replaces silently | Called when domain is already in use |
 
 **Returns:**
 

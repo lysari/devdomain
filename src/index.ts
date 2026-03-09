@@ -2,13 +2,14 @@ import { ensureSudo } from './core/sudo.js'
 import { findFreePort } from './core/port-finder.js'
 import { detectDomain, parseDomain } from './core/domain.js'
 import { addHost, removeHost, flushDNS } from './core/hosts.js'
-import { hasValetOrHerd } from './core/detect.js'
+import { hasValetOrHerd, detectBackend } from './core/detect.js'
 import { startProxy } from './core/proxy.js'
 import { generateCert, isMkcertInstalled, setupMkcert } from './core/cert.js'
 import { spawnDevServer } from './core/runner.js'
-import type { BetterPortOptions, BetterPortResult } from './types.js'
+import { listBackendProxies, removeBackendProxy, findProcessOnPort, killProcess } from './core/process.js'
+import type { BetterPortOptions, BetterPortResult, DomainConflict } from './types.js'
 
-export type { BetterPortOptions, BetterPortResult } from './types.js'
+export type { BetterPortOptions, BetterPortResult, DomainConflict } from './types.js'
 
 export default async function devdomain(options: BetterPortOptions = {}): Promise<BetterPortResult> {
   const {
@@ -19,12 +20,46 @@ export default async function devdomain(options: BetterPortOptions = {}): Promis
     portRange,
     open: autoOpen = true,
     cwd = process.cwd(),
+    onConflict,
   } = options
 
   // Resolve domain
   const domain = options.domain
     ? parseDomain(options.domain)
     : detectDomain(cwd)
+
+  // Check for existing proxy on the same domain
+  const backend = detectBackend()
+  if (backend !== 'none') {
+    const proxies = listBackendProxies(backend)
+    const siteName = domain.replace(/\.test$/, '')
+    const existing = proxies.find(p => p.site === siteName)
+
+    if (existing) {
+      const portMatch = existing.host.match(/:(\d+)$/)
+      const existingPort = portMatch ? parseInt(portMatch[1], 10) : undefined
+      const existingProcess = existingPort ? findProcessOnPort(existingPort) : undefined
+
+      const conflict: DomainConflict = {
+        domain,
+        proxy: existing,
+        process: existingProcess,
+      }
+
+      if (onConflict) {
+        const decision = await onConflict(conflict)
+        if (decision === 'cancel') {
+          throw new Error(`Domain ${domain} is already in use. Cancelled by user.`)
+        }
+      }
+
+      // Replace: kill old process and remove old proxy
+      if (existingProcess) {
+        killProcess(existingProcess.pid)
+      }
+      removeBackendProxy(backend, siteName)
+    }
+  }
 
   // Find a free port
   const [min, max] = portRange || [4000, 8999]

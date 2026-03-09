@@ -38,7 +38,7 @@ function getConfigPaths(domain: string) {
 function copyNginxConfig(domain: string): void {
   const { herdConfig, valetConfig } = getConfigPaths(domain)
   try {
-    if (fs.existsSync(herdConfig) && !fs.existsSync(valetConfig)) {
+    if (fs.existsSync(herdConfig)) {
       fs.copyFileSync(herdConfig, valetConfig)
     }
   } catch {}

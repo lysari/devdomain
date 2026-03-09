@@ -43,8 +43,14 @@ export function detectDevCommand(args: string[]): { command: string; args: strin
     // If just the tool name, add 'dev' for ones that need it
     const needsDev = ['next', 'nuxt', 'astro', 'remix']
     if (needsDev.includes(cmd) && !rest.includes('dev')) {
-      return { command: 'npx', args: [cmd, 'dev', ...rest] }
+      rest.unshift('dev')
     }
+
+    // Next.js binds to ::1 (IPv6) by default — force IPv4 for proxy compatibility
+    if (cmd === 'next' && !rest.includes('--hostname') && !rest.includes('-H')) {
+      rest.push('--hostname', '0.0.0.0')
+    }
+
     return { command: 'npx', args: [cmd, ...rest] }
   }
 
