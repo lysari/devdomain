@@ -48,15 +48,15 @@
 
 <div align="center">
 
-```
-  $ npx devdomains vite
+```bash
+$ npx devdomain vite
 
-  devdomain
+  devdomain v1.0.2
 
-  Domain:   my-project.test
-  Port:     7421
-  URL:      http://my-project.test:7421
-  Internal: http://127.0.0.1:7421
+  Domain:    my-project.test
+  Port:      7421
+  URL:       http://my-project.test:7421
+  Internal:  http://127.0.0.1:7421
 
   Press Ctrl+C to stop
 ```
@@ -106,7 +106,7 @@
 ## Install
 
 ```bash
-npm install -D devdomains
+npm install -D devdomain
 ```
 
 ## Quick Start
@@ -115,18 +115,18 @@ npm install -D devdomains
 
 ```bash
 # Auto-detects your dev server
-npx devdomains dev
+npx devdomain dev
 
 # Or specify it explicitly
-npx devdomains vite
-npx devdomains next dev
-npx devdomains nuxt dev
+npx devdomain vite
+npx devdomain next dev
+npx devdomain nuxt dev
 
 # Custom domain
-npx devdomains dev --domain dashboard.test
+npx devdomain dev --domain dashboard.test
 
 # Full experience: clean URL + trusted HTTPS
-npx devdomains dev --clean --https
+npx devdomain dev --clean --https
 ```
 
 ### Vite Plugin (zero config)
@@ -134,7 +134,7 @@ npx devdomains dev --clean --https
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite'
-import devdomain from 'devdomains/vite'
+import devdomain from 'devdomain/vite'
 
 export default defineConfig({
   plugins: [
@@ -148,7 +148,7 @@ Then just run `npm run dev` as usual. devdomain handles everything.
 ### Programmatic API
 
 ```ts
-import devdomain from 'devdomains'
+import devdomain from 'devdomain'
 
 const server = await devdomain({
   command: 'vite',
@@ -172,7 +172,7 @@ await server.stop()
 ### Simple Mode <sup>default</sup>
 
 ```bash
-npx devdomains dev
+npx devdomain dev
 ```
 
 ```
@@ -188,7 +188,7 @@ No extra privileges beyond the hosts file edit.
 ### Clean Mode
 
 ```bash
-npx devdomains dev --clean --https
+npx devdomain dev --clean --https
 ```
 
 ```

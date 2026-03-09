@@ -43,19 +43,19 @@ program
       })
 
       console.log()
-      console.log(chalk.bold.green('  devdomain'))
+      console.log(chalk.bold.green('  devdomain') + chalk.dim(` v1.0`))
       console.log()
-      console.log(`  ${chalk.dim('Domain:')}   ${chalk.cyan(result.domain)}`)
-      console.log(`  ${chalk.dim('Port:')}     ${chalk.yellow(String(result.port))}`)
-      console.log(`  ${chalk.dim('URL:')}      ${chalk.bold.underline(result.url)}`)
-      console.log(`  ${chalk.dim('Internal:')} ${result.internalUrl}`)
+      console.log(`  ${chalk.dim('Domain:')}    ${chalk.cyan(result.domain)}`)
+      console.log(`  ${chalk.dim('Port:')}      ${chalk.yellow(String(result.port))}`)
+      console.log(`  ${chalk.dim('URL:')}       ${chalk.bold.underline(result.url)}`)
+      console.log(`  ${chalk.dim('Internal:')}  ${result.internalUrl}`)
       if (opts.https) {
-        console.log(`  ${chalk.dim('HTTPS:')}   ${chalk.green('trusted (mkcert)')}`)
+        console.log(`  ${chalk.dim('HTTPS:')}    ${chalk.green('trusted (mkcert)')}`)
       }
       if (opts.clean) {
         const backend = detectBackend()
         const via = backend === 'herd' ? 'Herd' : backend === 'valet' ? 'Valet' : 'reverse proxy'
-        console.log(`  ${chalk.dim('Mode:')}    ${chalk.green(`clean (${via})`)}`)
+        console.log(`  ${chalk.dim('Mode:')}     ${chalk.green(`clean (${via})`)}`)
       }
       console.log()
       console.log(chalk.dim('  Press Ctrl+C to stop'))

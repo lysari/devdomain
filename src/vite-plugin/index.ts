@@ -91,9 +91,10 @@ export default function devdomainPlugin(options: VitePluginOptions = {}): any {
 
       server.printUrls = () => {
         console.log()
-        console.log(`  \x1b[1m\x1b[32mdevdomain\x1b[0m`)
-        console.log(`  \x1b[2mDomain:\x1b[0m  \x1b[36m${domain}\x1b[0m`)
-        console.log(`  \x1b[2mURL:\x1b[0m     \x1b[1m\x1b[4m${url}\x1b[0m`)
+        console.log(`  \x1b[1m\x1b[32mdevdomain\x1b[0m \x1b[2mv1.0\x1b[0m`)
+        console.log()
+        console.log(`  \x1b[2mDomain:\x1b[0m    \x1b[36m${domain}\x1b[0m`)
+        console.log(`  \x1b[2mURL:\x1b[0m       \x1b[1m\x1b[4m${url}\x1b[0m`)
         console.log()
       }
 
