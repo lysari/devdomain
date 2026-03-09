@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process'
+import fs from 'node:fs'
 import os from 'node:os'
 
 export interface PortProcess {
@@ -215,6 +216,19 @@ export function listBackendProxies(backend: string): HerdProxy[] {
  * Remove a Herd/Valet proxy by site name
  */
 export function removeBackendProxy(backend: string, site: string): void {
+  const domain = `${site}.test`
+
+  // Remove symlink BEFORE unproxy to prevent broken symlinks blocking nginx
+  if (backend === 'herd') {
+    const valetConfig = `${os.homedir()}/.config/valet/Nginx/${domain}`
+    try {
+      const stat = fs.lstatSync(valetConfig)
+      if (stat.isSymbolicLink()) {
+        fs.unlinkSync(valetConfig)
+      }
+    } catch {}
+  }
+
   try {
     execSync(`${backend} unproxy ${site}`, { stdio: 'ignore' })
   } catch {}

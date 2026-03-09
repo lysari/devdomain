@@ -28,35 +28,17 @@ function detectStrategy(): ProxyStrategy {
 function reloadNginx(): void {
   const platform = os.platform()
 
-  // Try finding the root-owned nginx master PID
-  let nginxPid = ''
+  // Try 1: sudo -n nginx -s reload (works if sudoers allows passwordless)
   try {
-    nginxPid = execSync(
-      "ps -eo pid,comm,user | grep 'nginx.*master' | grep root | awk '{print $1}' | head -1",
-      { encoding: 'utf-8' }
-    ).trim()
-  } catch {}
-
-  if (!nginxPid) {
-    // No root nginx — try regular reload
-    try {
-      execSync('nginx -s reload', { stdio: 'ignore' })
-    } catch {}
-    return
-  }
-
-  // Root-owned nginx master — need elevated privileges to send HUP
-  // Try 1: sudo directly (works in interactive terminals)
-  try {
-    const result = spawnSync('sudo', ['-n', 'kill', '-HUP', nginxPid], { stdio: 'pipe' })
+    const result = spawnSync('sudo', ['-n', 'nginx', '-s', 'reload'], { stdio: 'pipe' })
     if (result.status === 0) return
   } catch {}
 
-  // Try 2: macOS osascript for GUI password prompt (works even without terminal)
+  // Try 2: macOS osascript for GUI password prompt
   if (platform === 'darwin') {
     try {
       execSync(
-        `osascript -e 'do shell script "kill -HUP ${nginxPid}" with administrator privileges'`,
+        `osascript -e 'do shell script "nginx -s reload" with administrator privileges'`,
         { stdio: 'pipe' }
       )
       return
@@ -65,7 +47,7 @@ function reloadNginx(): void {
 
   // Try 3: interactive sudo (last resort, only works in real terminals)
   try {
-    spawnSync('sudo', ['kill', '-HUP', nginxPid], { stdio: 'inherit' })
+    spawnSync('sudo', ['nginx', '-s', 'reload'], { stdio: 'inherit' })
   } catch {}
 }
 
@@ -131,10 +113,11 @@ function runBackendProxy(backend: 'herd' | 'valet', domain: string, targetPort: 
 function runBackendUnproxy(backend: 'herd' | 'valet', domain: string): Promise<void> {
   return new Promise((resolve) => {
     const siteName = domain.replace(/\.test$/, '')
+    // Remove symlink BEFORE unproxy to prevent broken symlinks blocking nginx
+    if (backend === 'herd') {
+      removeNginxConfigLink(domain)
+    }
     exec(`${backend} unproxy ${siteName}`, () => {
-      if (backend === 'herd') {
-        removeNginxConfigLink(domain)
-      }
       reloadNginx()
       resolve()
     })
