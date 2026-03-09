@@ -1,3 +1,4 @@
+import { ensureSudo } from './core/sudo.js'
 import { findFreePort } from './core/port-finder.js'
 import { detectDomain, parseDomain } from './core/domain.js'
 import { addHost, removeHost, flushDNS } from './core/hosts.js'
@@ -32,6 +33,8 @@ export default async function devdomain(options: BetterPortOptions = {}): Promis
   // Register domain in hosts file (skip if Valet handles .test via dnsmasq)
   const valetDetected = hasValetOrHerd()
   if (!valetDetected) {
+    // Only need sudo for hosts file editing (non-Herd/Valet systems)
+    ensureSudo()
     await addHost(domain)
     flushDNS()
   }

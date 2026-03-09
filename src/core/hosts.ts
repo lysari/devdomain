@@ -1,6 +1,7 @@
 import { execSync, exec } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
+import { sudoExec } from './sudo.js'
 
 const HOSTS_TAG = '# devdomain'
 const IP = '127.0.0.1'
@@ -30,7 +31,6 @@ function sudoWriteHosts(content: string): Promise<void> {
     const hostsPath = getHostsPath()
 
     if (platform === 'win32') {
-      // On Windows, try direct write (needs admin)
       try {
         fs.writeFileSync(hostsPath, content)
         resolve()
@@ -40,20 +40,18 @@ function sudoWriteHosts(content: string): Promise<void> {
       return
     }
 
-    // macOS/Linux: use sudo tee
+    // macOS/Linux: write to tmp then sudo cp (credentials cached by ensureSudo)
     const tmpFile = `/tmp/devdomain-hosts-${Date.now()}`
     fs.writeFileSync(tmpFile, content)
 
-    const cmd = `sudo cp "${tmpFile}" "${hostsPath}" && rm "${tmpFile}"`
-    exec(cmd, (error) => {
-      // Clean up tmp file on failure too
-      try { fs.unlinkSync(tmpFile) } catch {}
-      if (error) {
-        reject(new Error(`Failed to update hosts file: ${error.message}`))
-      } else {
-        resolve()
-      }
-    })
+    const success = sudoExec(`cp "${tmpFile}" "${hostsPath}"`)
+    try { fs.unlinkSync(tmpFile) } catch {}
+
+    if (success) {
+      resolve()
+    } else {
+      reject(new Error('Failed to update hosts file. Run devdomain again to retry.'))
+    }
   })
 }
 
@@ -99,9 +97,10 @@ export function flushDNS(): void {
   const platform = os.platform()
   try {
     if (platform === 'darwin') {
-      execSync('sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder', { stdio: 'ignore' })
+      sudoExec('dscacheutil -flushcache')
+      sudoExec('killall -HUP mDNSResponder')
     } else if (platform === 'linux') {
-      execSync('sudo systemd-resolve --flush-caches 2>/dev/null || sudo resolvectl flush-caches 2>/dev/null || true', { stdio: 'ignore' })
+      sudoExec('systemd-resolve --flush-caches 2>/dev/null || resolvectl flush-caches 2>/dev/null || true')
     } else if (platform === 'win32') {
       execSync('ipconfig /flushdns', { stdio: 'ignore' })
     }

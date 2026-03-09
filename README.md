@@ -49,7 +49,7 @@
 ```bash
 $ npx devdomain vite
 
-devdomain v1.1.3
+devdomain v1.1.4
 
 Domain:    my-project.test
 Port:      7421

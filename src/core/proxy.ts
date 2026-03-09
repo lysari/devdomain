@@ -1,7 +1,7 @@
 import http from 'node:http'
 import https from 'node:https'
 import fs from 'node:fs'
-import { exec, execSync, spawnSync } from 'node:child_process'
+import { exec, spawnSync } from 'node:child_process'
 import os from 'node:os'
 import httpProxy from 'http-proxy'
 import type { ProxyOptions } from '../types.js'
@@ -23,74 +23,55 @@ function detectStrategy(): ProxyStrategy {
   return 'portforward'
 }
 
-// --- Nginx reload (needed for Herd/Valet) ---
+// --- Herd/Valet strategy ---
+// Herd writes nginx configs to its own dir, but root nginx includes ~/.config/valet/Nginx/*.
+// We copy (not symlink) the config so root nginx picks it up, and delete on cleanup.
 
-function reloadNginx(): void {
-  const platform = os.platform()
-
-  // Try 1: sudo -n nginx -s reload (works if sudoers allows passwordless)
-  try {
-    const result = spawnSync('sudo', ['-n', 'nginx', '-s', 'reload'], { stdio: 'pipe' })
-    if (result.status === 0) return
-  } catch {}
-
-  // Try 2: macOS osascript for GUI password prompt
-  if (platform === 'darwin') {
-    try {
-      execSync(
-        `osascript -e 'do shell script "nginx -s reload" with administrator privileges'`,
-        { stdio: 'pipe' }
-      )
-      return
-    } catch {}
+function getConfigPaths(domain: string) {
+  const homedir = os.homedir()
+  return {
+    herdConfig: `${homedir}/Library/Application Support/Herd/config/valet/Nginx/${domain}`,
+    valetConfig: `${homedir}/.config/valet/Nginx/${domain}`,
   }
-
-  // Try 3: interactive sudo (last resort, only works in real terminals)
-  try {
-    spawnSync('sudo', ['nginx', '-s', 'reload'], { stdio: 'inherit' })
-  } catch {}
 }
 
-// --- Herd/Valet strategy ---
-
-function syncNginxConfig(domain: string): void {
-  // Herd writes nginx configs to its own directory, but the root nginx
-  // may include a different path (e.g. ~/.config/valet/Nginx/).
-  // Symlink the config so root nginx picks it up.
-  const homedir = os.homedir()
-  const herdConfig = `${homedir}/Library/Application Support/Herd/config/valet/Nginx/${domain}`
-  const valetConfig = `${homedir}/.config/valet/Nginx/${domain}`
-
+function copyNginxConfig(domain: string): void {
+  const { herdConfig, valetConfig } = getConfigPaths(domain)
   try {
-    // Only needed if Herd config exists but Valet dir is what nginx includes
     if (fs.existsSync(herdConfig) && !fs.existsSync(valetConfig)) {
-      // Ensure the target directory exists
-      const valetNginxDir = `${homedir}/.config/valet/Nginx`
-      if (fs.existsSync(valetNginxDir)) {
-        fs.symlinkSync(herdConfig, valetConfig)
-      }
+      fs.copyFileSync(herdConfig, valetConfig)
     }
   } catch {}
 }
 
-function removeNginxConfigLink(domain: string): void {
-  const homedir = os.homedir()
-  const valetConfig = `${homedir}/.config/valet/Nginx/${domain}`
-
+function removeNginxConfig(domain: string): void {
+  const { herdConfig, valetConfig } = getConfigPaths(domain)
   try {
-    const stat = fs.lstatSync(valetConfig)
-    // Only remove if it's a symlink we created (not a real config)
-    if (stat.isSymbolicLink()) {
+    // Only remove if it's a copy we created (source no longer exists after unproxy)
+    if (fs.existsSync(valetConfig) && !fs.existsSync(herdConfig)) {
       fs.unlinkSync(valetConfig)
     }
   } catch {}
 }
 
+function reloadNginx(): void {
+  // Try non-interactive sudo first (works if credentials are cached)
+  try {
+    const result = spawnSync('sudo', ['-n', 'nginx', '-s', 'reload'], { stdio: 'pipe' })
+    if (result.status === 0) return
+  } catch {}
+
+  // macOS: prompt in terminal (standard sudo experience)
+  if (os.platform() === 'darwin' || os.platform() === 'linux') {
+    try {
+      spawnSync('sudo', ['nginx', '-s', 'reload'], { stdio: 'inherit' })
+    } catch {}
+  }
+}
+
 function runBackendProxy(backend: 'herd' | 'valet', domain: string, targetPort: number, useHttps: boolean): Promise<void> {
   return new Promise((resolve, reject) => {
     const siteName = domain.replace(/\.test$/, '')
-    // Target is always HTTP — the dev server runs plain HTTP internally
-    // Use --secure flag to get trusted TLS on the public-facing side
     const secureFlag = useHttps ? ' --secure' : ''
     const cmd = `${backend} proxy ${siteName} http://127.0.0.1:${targetPort}${secureFlag}`
     exec(cmd, (error, _stdout, stderr) => {
@@ -98,13 +79,10 @@ function runBackendProxy(backend: 'herd' | 'valet', domain: string, targetPort: 
         reject(new Error(`${backend} proxy failed: ${stderr || error.message}`))
         return
       }
-
-      // Herd writes config to its own dir — symlink to where root nginx looks
       if (backend === 'herd') {
-        syncNginxConfig(domain)
+        copyNginxConfig(domain)
+        reloadNginx()
       }
-      // Reload the root-owned nginx master
-      reloadNginx()
       resolve()
     })
   })
@@ -113,12 +91,11 @@ function runBackendProxy(backend: 'herd' | 'valet', domain: string, targetPort: 
 function runBackendUnproxy(backend: 'herd' | 'valet', domain: string): Promise<void> {
   return new Promise((resolve) => {
     const siteName = domain.replace(/\.test$/, '')
-    // Remove symlink BEFORE unproxy to prevent broken symlinks blocking nginx
-    if (backend === 'herd') {
-      removeNginxConfigLink(domain)
-    }
     exec(`${backend} unproxy ${siteName}`, () => {
-      reloadNginx()
+      if (backend === 'herd') {
+        removeNginxConfig(domain)
+        reloadNginx()
+      }
       resolve()
     })
   })
