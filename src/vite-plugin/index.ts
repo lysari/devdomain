@@ -104,6 +104,18 @@ export default function devdomainPlugin(options: VitePluginOptions = {}): any {
 
       // Cleanup on server close
       server.httpServer?.on('close', cleanup)
+
+      // Cleanup on process exit (Ctrl+C, terminal close, kill)
+      process.on('SIGINT', async () => { await cleanup(); process.exit(0) })
+      process.on('SIGTERM', async () => { await cleanup(); process.exit(0) })
+      process.on('SIGHUP', async () => { await cleanup(); process.exit(0) })
+      process.on('exit', () => {
+        // Synchronous last-resort cleanup — can't await but try anyway
+        if (!cleanupDone && stopProxy) {
+          cleanupDone = true
+          try { stopProxy() } catch {}
+        }
+      })
     },
 
     async buildEnd() {

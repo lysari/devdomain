@@ -75,7 +75,10 @@ export default async function devdomain(options: BetterPortOptions = {}): Promis
     setTimeout(() => openModule.default(url), 1500)
   }
 
+  let stopped = false
   const stop = async () => {
+    if (stopped) return
+    stopped = true
     if (child && !child.killed) {
       child.kill('SIGTERM')
     }
@@ -87,6 +90,11 @@ export default async function devdomain(options: BetterPortOptions = {}): Promis
       flushDNS()
     }
   }
+
+  // Auto-cleanup on process exit (Ctrl+C, terminal close, kill)
+  process.on('SIGINT', async () => { await stop(); process.exit(0) })
+  process.on('SIGTERM', async () => { await stop(); process.exit(0) })
+  process.on('SIGHUP', async () => { await stop(); process.exit(0) })
 
   return { domain, port, url, internalUrl, stop }
 }
