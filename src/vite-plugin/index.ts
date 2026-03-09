@@ -12,9 +12,9 @@ const { version } = require('../../package.json')
 
 export default function devdomainPlugin(options: VitePluginOptions = {}): any {
   const {
-    https: useHttps = false,
-    clean = false,
-    open: autoOpen = false,
+    https: useHttps = true,
+    clean = true,
+    open: autoOpen = true,
   } = options
 
   let domain: string
@@ -49,10 +49,10 @@ export default function devdomainPlugin(options: VitePluginOptions = {}): any {
         flushDNS()
       }
 
-      // Handle HTTPS
+      // Handle HTTPS (skip mkcert if Herd/Valet handles certs)
       let cert: string | undefined
       let key: string | undefined
-      if (useHttps) {
+      if (useHttps && !valetDetected) {
         if (!isMkcertInstalled()) {
           setupMkcert()
         }
@@ -63,7 +63,7 @@ export default function devdomainPlugin(options: VitePluginOptions = {}): any {
 
       // Start proxy for clean mode
       if (clean) {
-        const proxyInstance = await startProxy({ targetPort: port, domain, cert, key })
+        const proxyInstance = await startProxy({ targetPort: port, domain, cert, key, https: useHttps })
         stopProxy = proxyInstance.stop
       }
 

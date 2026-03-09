@@ -107,13 +107,16 @@ function removeNginxConfigLink(domain: string): void {
 function runBackendProxy(backend: 'herd' | 'valet', domain: string, targetPort: number, useHttps: boolean): Promise<void> {
   return new Promise((resolve, reject) => {
     const siteName = domain.replace(/\.test$/, '')
-    const scheme = useHttps ? 'https' : 'http'
-    const cmd = `${backend} proxy ${siteName} ${scheme}://127.0.0.1:${targetPort}`
+    // Target is always HTTP — the dev server runs plain HTTP internally
+    // Use --secure flag to get trusted TLS on the public-facing side
+    const secureFlag = useHttps ? ' --secure' : ''
+    const cmd = `${backend} proxy ${siteName} http://127.0.0.1:${targetPort}${secureFlag}`
     exec(cmd, (error, _stdout, stderr) => {
       if (error) {
         reject(new Error(`${backend} proxy failed: ${stderr || error.message}`))
         return
       }
+
       // Herd writes config to its own dir — symlink to where root nginx looks
       if (backend === 'herd') {
         syncNginxConfig(domain)
@@ -192,7 +195,7 @@ export function startProxy(options: ProxyOptions): Promise<ProxyInstance> {
 
 async function startBackendProxy(backend: 'herd' | 'valet', options: ProxyOptions): Promise<ProxyInstance> {
   const { targetPort, domain, cert, key } = options
-  const useHttps = !!(cert && key)
+  const useHttps = options.https ?? !!(cert && key)
 
   await runBackendProxy(backend, domain, targetPort, useHttps)
 

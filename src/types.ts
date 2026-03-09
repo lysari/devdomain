@@ -22,6 +22,7 @@ export interface ProxyOptions {
   domain: string
   cert?: string
   key?: string
+  https?: boolean
 }
 
 export interface VitePluginOptions {

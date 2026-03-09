@@ -11,12 +11,12 @@ export type { BetterPortOptions, BetterPortResult } from './types.js'
 
 export default async function devdomain(options: BetterPortOptions = {}): Promise<BetterPortResult> {
   const {
-    https: useHttps = false,
-    clean = false,
+    https: useHttps = true,
+    clean = true,
     command,
     args = [],
     portRange,
-    open: autoOpen = false,
+    open: autoOpen = true,
     cwd = process.cwd(),
   } = options
 
@@ -36,10 +36,10 @@ export default async function devdomain(options: BetterPortOptions = {}): Promis
     flushDNS()
   }
 
-  // Handle HTTPS
+  // Handle HTTPS (skip mkcert if Herd/Valet handles certs)
   let cert: string | undefined
   let key: string | undefined
-  if (useHttps) {
+  if (useHttps && !valetDetected) {
     if (!isMkcertInstalled()) {
       setupMkcert()
     }
@@ -51,7 +51,7 @@ export default async function devdomain(options: BetterPortOptions = {}): Promis
   // Start proxy if clean mode
   let stopProxy: (() => Promise<void>) | undefined
   if (clean) {
-    const proxyInstance = await startProxy({ targetPort: port, domain, cert, key })
+    const proxyInstance = await startProxy({ targetPort: port, domain, cert, key, https: useHttps })
     stopProxy = proxyInstance.stop
   }
 
