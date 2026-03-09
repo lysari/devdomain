@@ -9,7 +9,7 @@ import type { BetterPortOptions, BetterPortResult } from './types.js'
 
 export type { BetterPortOptions, BetterPortResult } from './types.js'
 
-export default async function betterport(options: BetterPortOptions = {}): Promise<BetterPortResult> {
+export default async function devdomain(options: BetterPortOptions = {}): Promise<BetterPortResult> {
   const {
     https: useHttps = false,
     clean = false,

@@ -2,7 +2,7 @@ import { execSync, exec } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 
-const HOSTS_TAG = '# betterport'
+const HOSTS_TAG = '# devdomain'
 const IP = '127.0.0.1'
 
 function getHostsPath(): string {
@@ -41,7 +41,7 @@ function sudoWriteHosts(content: string): Promise<void> {
     }
 
     // macOS/Linux: use sudo tee
-    const tmpFile = `/tmp/betterport-hosts-${Date.now()}`
+    const tmpFile = `/tmp/devdomain-hosts-${Date.now()}`
     fs.writeFileSync(tmpFile, content)
 
     const cmd = `sudo cp "${tmpFile}" "${hostsPath}" && rm "${tmpFile}"`

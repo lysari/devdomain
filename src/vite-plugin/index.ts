@@ -1,4 +1,3 @@
-import type { Plugin, ViteDevServer } from 'vite'
 import { findFreePort } from '../core/port-finder.js'
 import { detectDomain, parseDomain } from '../core/domain.js'
 import { addHost, removeHost, flushDNS } from '../core/hosts.js'
@@ -7,7 +6,7 @@ import { generateCert, isMkcertInstalled, setupMkcert } from '../core/cert.js'
 import { hasValetOrHerd } from '../core/detect.js'
 import type { VitePluginOptions } from '../types.js'
 
-export default function betterportPlugin(options: VitePluginOptions = {}): Plugin {
+export default function devdomainPlugin(options: VitePluginOptions = {}): any {
   const {
     https: useHttps = false,
     clean = false,
@@ -30,8 +29,8 @@ export default function betterportPlugin(options: VitePluginOptions = {}): Plugi
   }
 
   return {
-    name: 'vite-plugin-betterport',
-    enforce: 'pre',
+    name: 'vite-plugin-devdomain',
+    enforce: 'pre' as const,
 
     async config() {
       domain = options.domain
@@ -83,7 +82,7 @@ export default function betterportPlugin(options: VitePluginOptions = {}): Plugi
       }
     },
 
-    configureServer(server: ViteDevServer) {
+    configureServer(server: any) {
       const protocol = useHttps ? 'https' : 'http'
       const port = server.config.server.port
       const url = clean
@@ -92,7 +91,7 @@ export default function betterportPlugin(options: VitePluginOptions = {}): Plugi
 
       server.printUrls = () => {
         console.log()
-        console.log(`  \x1b[1m\x1b[32mbetterport\x1b[0m`)
+        console.log(`  \x1b[1m\x1b[32mdevdomain\x1b[0m`)
         console.log(`  \x1b[2mDomain:\x1b[0m  \x1b[36m${domain}\x1b[0m`)
         console.log(`  \x1b[2mURL:\x1b[0m     \x1b[1m\x1b[4m${url}\x1b[0m`)
         console.log()

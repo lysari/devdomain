@@ -2,7 +2,7 @@
 
 import { Command } from 'commander'
 import chalk from 'chalk'
-import betterport from '../index.js'
+import devdomain from '../index.js'
 import { detectDevCommand } from '../core/runner.js'
 import { removeAllHosts, listHosts, flushDNS } from '../core/hosts.js'
 import { setupMkcert } from '../core/cert.js'
@@ -11,7 +11,7 @@ import { detectBackend } from '../core/detect.js'
 const program = new Command()
 
 program
-  .name('betterports')
+  .name('devdomain')
   .description('Give your dev server a clean .test domain')
   .version('1.0.0')
 
@@ -32,7 +32,7 @@ program
         ? (opts.portRange.split('-').map(Number) as [number, number])
         : undefined
 
-      const result = await betterport({
+      const result = await devdomain({
         domain: opts.domain,
         https: opts.https,
         clean: opts.clean,
@@ -43,7 +43,7 @@ program
       })
 
       console.log()
-      console.log(chalk.bold.green('  betterport'))
+      console.log(chalk.bold.green('  devdomain'))
       console.log()
       console.log(`  ${chalk.dim('Domain:')}   ${chalk.cyan(result.domain)}`)
       console.log(`  ${chalk.dim('Port:')}     ${chalk.yellow(String(result.port))}`)
@@ -94,14 +94,14 @@ program
 
 program
   .command('list')
-  .description('Show all active betterport domains')
+  .description('Show all active devdomain domains')
   .action(() => {
     const entries = listHosts()
     if (entries.length === 0) {
-      console.log(chalk.dim('No active betterport domains.'))
+      console.log(chalk.dim('No active devdomain domains.'))
       return
     }
-    console.log(chalk.bold('\nActive betterport domains:\n'))
+    console.log(chalk.bold('\nActive devdomain domains:\n'))
     for (const entry of entries) {
       console.log(`  ${chalk.cyan(entry.domain)} ${chalk.dim('->')} ${entry.ip}`)
     }
@@ -110,12 +110,12 @@ program
 
 program
   .command('cleanup')
-  .description('Remove all betterport entries from hosts file')
+  .description('Remove all devdomain entries from hosts file')
   .action(async () => {
     try {
       await removeAllHosts()
       flushDNS()
-      console.log(chalk.green('All betterport hosts entries removed.'))
+      console.log(chalk.green('All devdomain hosts entries removed.'))
     } catch (error) {
       console.error(chalk.red((error as Error).message))
       process.exit(1)

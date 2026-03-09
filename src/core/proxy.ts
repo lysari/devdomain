@@ -146,7 +146,7 @@ function addPortForward(fromPort: number, toPort: number): Promise<void> {
 
     if (platform === 'darwin') {
       const rule = `rdr pass on lo0 inet proto tcp from any to 127.0.0.1 port ${fromPort} -> 127.0.0.1 port ${toPort}`
-      const cmd = `echo "${rule}" | sudo pfctl -a "com.apple/betterports" -f - && sudo pfctl -e 2>/dev/null; true`
+      const cmd = `echo "${rule}" | sudo pfctl -a "com.apple/devdomain" -f - && sudo pfctl -e 2>/dev/null; true`
       exec(cmd, (error) => {
         if (error) reject(new Error(`Failed to set up port forwarding: ${error.message}`))
         else resolve()
@@ -168,7 +168,7 @@ function removePortForward(fromPort: number, toPort: number): Promise<void> {
     const platform = os.platform()
 
     if (platform === 'darwin') {
-      exec('sudo pfctl -a "com.apple/betterports" -F all 2>/dev/null; true', () => resolve())
+      exec('sudo pfctl -a "com.apple/devdomain" -F all 2>/dev/null; true', () => resolve())
     } else if (platform === 'linux') {
       const cmd = `sudo iptables -t nat -D OUTPUT -p tcp -d 127.0.0.1 --dport ${fromPort} -j REDIRECT --to-port ${toPort} 2>/dev/null; true`
       exec(cmd, () => resolve())
@@ -219,7 +219,7 @@ function startPortForwardProxy(options: ProxyOptions): Promise<ProxyInstance> {
     proxy.on('error', (err, _req, res) => {
       if (res && 'writeHead' in res) {
         ;(res as http.ServerResponse).writeHead(502, { 'Content-Type': 'text/plain' })
-        ;(res as http.ServerResponse).end('betterports: waiting for dev server...')
+        ;(res as http.ServerResponse).end('devdomain: waiting for dev server...')
       }
     })
 

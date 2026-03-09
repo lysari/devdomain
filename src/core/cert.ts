@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 
-const CERT_DIR = path.join(os.homedir(), '.betterport', 'certs')
+const CERT_DIR = path.join(os.homedir(), '.devdomain', 'certs')
 
 function ensureCertDir(): void {
   fs.mkdirSync(CERT_DIR, { recursive: true })
