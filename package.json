@@ -1,7 +1,7 @@
 {
   "name": "devdomain",
-  "version": "1.0.0",
-  "description": "Give your dev server a clean .test domain with zero config",
+  "version": "1.0.2",
+  "description": "Give your dev server a clean .test domain with zero config. Works with Vite, Next.js, Nuxt, and any dev server.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -27,16 +27,43 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
+    "devdomain",
     "dev-server",
     "local-domain",
+    "local-development",
     "test-domain",
+    "dottest",
     "vite-plugin",
+    "vite",
+    "nextjs",
+    "nuxt",
     "proxy",
+    "reverse-proxy",
     "https",
+    "ssl",
     "mkcert",
-    "hosts"
+    "hosts",
+    "localhost",
+    "domain",
+    "dns",
+    "herd",
+    "valet",
+    "laravel-herd",
+    "laravel-valet"
   ],
+  "homepage": "https://github.com/lysari/devdomain#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lysari/devdomain.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lysari/devdomain/issues"
+  },
+  "author": "Sari Ly",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
